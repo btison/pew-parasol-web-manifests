@@ -2,7 +2,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: {{ parasol_web_argocd_name }}-dev
+  name: {{ parasol_web_argocd_name }}-staging
   namespace: {{ parasol_web_argocd_namespace }}
   labels:
     rht-gitops.com/argocd: {{ parasol_web_argocd_name }}
@@ -16,7 +16,7 @@ spec:
     path: ./app/helm/parasol-web
     helm:
       valueFiles:
-        - ../../values/values-dev.yaml
+        - ../../values/values-staging.yaml
   destination:
     server: https://kubernetes.default.svc
     namespace: {{ parasol_web_namespace }}
