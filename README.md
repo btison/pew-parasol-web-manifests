@@ -1,0 +1,1 @@
+Gitops manifests for Parasol web application
