@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "parasol-web.name" . }}
+  labels:
+    {{- include "parasol-web.labels" . | nindent 4 }}
+    app.openshift.io/runtime: nodejs
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "parasol-web.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "parasol-web.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "parasol-web.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ include "parasol-web.image" . }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.containerPort }}
+              protocol: TCP
+          livenessProbe:
+            {{- toYaml .Values.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.readinessProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: NODE_ENV
+              value: {{ .Values.nodeEnv }}
+            - name: PORT
+              value: '{{ .Values.service.containerPort }}'
+            - name: API_TRACK_USERACTIVITY
+              value: {{ .Values.activityTrackingService.url }}{{ .Values.activityTrackingService.path }}
+            - name: API_GET_PAGINATED_PRODUCTS
+              value: {{ .Values.parasolStoreApp.url }}{{ .Values.parasolStoreApp.getProductsPath }}
+            - name: API_GET_PRODUCT_DETAILS_BY_IDS
+              value: {{ .Values.parasolStoreApp.url }}{{ .Values.parasolStoreApp.getProductListPath }}
+            - name: API_CATALOG_RECOMMENDED_PRODUCT_IDS
+              value: {{ .Values.recommendationEngine.url }}{{ .Values.recommendationEngine.path }}
+            - name: API_CART_SERVICE
+              value: {{ .Values.parasolStoreApp.url }}{{ .Values.parasolStoreApp.cartPath }}
+            - name: API_CUSTOMER_SERVICE
+              value: {{ .Values.parasolStoreApp.url }}{{ .Values.parasolStoreApp.customerPath }}
+            - name: API_ORDER_SERVICE
+              value: {{ .Values.parasolStoreApp.url }}{{ .Values.parasolStoreApp.orderPath }}
+            {{- if .Values.sso.enabled }}
+            - name: SSO_CUSTOM_CONFIG
+              value: {{ .Values.sso.client }}
+            - name: SSO_AUTHORITY
+              value: {{ .Values.sso.url }}
+            - name: SSO_REDIRECT_LOGOUT_URI
+              value: {{ .Values.sso.logoutUri }}
+            - name: SSO_LOG_LEVEL
+              value: '{{ .Values.sso.logLevel }}'
+            {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

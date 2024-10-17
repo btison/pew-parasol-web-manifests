@@ -1,0 +1,19 @@
+replicaCount: 1
+
+image:
+  pullPolicy: IfNotPresent
+  host: quay.example.com
+  organization: parasol
+  name: parasol-web
+  tag: latest
+
+registry:
+  username: quayadmin
+  password: qwertyuio
+
+sso:
+  enabled: true
+  url: sso.example.com
+  client: parasol
+  logoutUri: https://parasol-web.example.com
+  logLevel: "2"

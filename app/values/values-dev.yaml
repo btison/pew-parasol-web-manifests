@@ -1,0 +1,20 @@
+image:
+  organization: {{ parasol_web_image_registry_organization }}
+  host: {{ parasol_web_image_registry_host }}
+  name: {{ parasol_web_image_registry_image_name }}
+  tag: {{ parasol_web_image_registry_image_tag }}
+
+registry:
+  username: {{ parasol_web_image_registry_username }}
+  password: {{ parasol_web_image_registry_password }}
+
+nameOverride: "parasol-web"
+
+parasolStoreApp:
+  url: {{ parasol_web_store_app_url }}
+  service: {{ parasol_web_store_app_service }}
+
+sso:
+  url: {{ parasol_web_sso_url }}
+  client: {{ parasol_web_sso_client }}
+  logoutUri: {{ parasol_web_sso_logout_url }}
